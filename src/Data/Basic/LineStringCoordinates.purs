@@ -2,26 +2,25 @@ module Data.Basic.LineStringCoordinates where
 
 import Prelude
 
-import Data.Array ((:), head)
-import Data.Array.Partial(tail)
-import Data.Array.NonEmpty (toUnfoldable)
+import Data.Array (uncons)
 import Data.Basic.PointCoordinates (PointCoordinates)
-import Data.List (List(..))
 import Data.Maybe (Maybe(..))
 
-type LineStringCoordinates =
+type LineStringCoordinates =  
   { first :: PointCoordinates
   , second :: PointCoordinates
-  , rest ::  Array PointCoordinates
+  , rest :: Array PointCoordinates
   }
 
 toArray :: LineStringCoordinates -> Array PointCoordinates
-toArray {first, second, rest } =  [first, second] <> rest 
+toArray { first, second, rest } =  [first] <> [second] <> rest
 
 
 fromArray :: Array PointCoordinates -> Maybe LineStringCoordinates
-fromArray = case _ of
-  [] -> Nothing
-  [first, second] -> Just $ { first, second, rest:[] }
-  rest@[first,second,z] -> Just { first, second, rest }
-  _ -> Nothing
+fromArray xs = case uncons xs of
+  Just { head:first, tail } -> 
+    case uncons tail of
+        Just { head: second, tail: rest } -> Just { first, second, rest }
+        Nothing -> Nothing
+  Nothing -> Nothing
+
