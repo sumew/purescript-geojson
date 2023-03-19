@@ -2,8 +2,10 @@ module Data.Basic.LinearRingCoordinates where
 
 
 
+import Data.Argonaut (Json, JsonDecodeError, decodeJson, encodeJson)
 import Data.Array (uncons, (:))
 import Data.Basic.PointCoordinates (PointCoordinates)
+import Data.Either (Either)
 import Data.Maybe (Maybe(..))
 import Data.NonEmpty (NonEmpty(..))
 import Data.NonEmpty as NE
@@ -35,3 +37,9 @@ fromArray xs =
       Nothing -> Nothing
 
 
+fromJson :: Json -> Either JsonDecodeError (Maybe LinearRingCoordinates)
+fromJson = decodeJson
+
+
+toJson :: LinearRingCoordinates -> Json
+toJson = encodeJson

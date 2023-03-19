@@ -12,7 +12,21 @@ to generate this file without the comments in this block.
 -}
 { name = "my-project"
 , dependencies =
-  [ "argonaut", "arrays", "console", "effect", "maybe", "prelude" ]
+  [ "argonaut"
+  , "arrays"
+  , "assert"
+  , "console"
+  , "effect"
+  , "either"
+  , "exceptions"
+  , "foreign-object"
+  , "maybe"
+  , "nonempty"
+  , "prelude"
+  , "quickcheck"
+  , "transformers"
+  , "tuples"
+  ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }
