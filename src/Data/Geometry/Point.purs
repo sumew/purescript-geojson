@@ -2,22 +2,39 @@ module Data.Point where
 
 import Prelude
 
+import Data.Argonaut (class DecodeJson, class EncodeJson, decodeJson, encodeJson, fromObject, fromString, (.:))
 import Data.Basic.PointCoordinates (PointCoordinates)
-import Data.Either (Either)
-
-import Data.Argonaut (class DecodeJson, class EncodeJson, Json, JsonDecodeError(..), decodeJson, encodeJson, fromObject, fromString)
 import Data.Tuple.Nested ((/\))
 import Foreign.Object (fromFoldable)
 
-type Point = PointCoordinates
+newtype Point = Point PointCoordinates
 
-makeGeometryJson :: Point -> Json
-makeGeometryJson point =
-  fromObject $ fromFoldable [ "type" /\ fromString "Point", "coordinates" /\ encodeJson point]
+derive newtype instance showPoint :: Show Point
 
-toJson :: Point -> Json 
-toJson = encodeJson 
+instance decodeJsonPoint :: DecodeJson Point where
+  decodeJson json = do
+     geometry <- decodeJson json
+     coordinates <- geometry .: "coordinates"
+     pure $ Point coordinates
 
-fromJson :: Json -> Either JsonDecodeError Point
-fromJson = decodeJson
+instance encodeJson :: EncodeJson Point where
+  encodeJson (Point point) = 
+    fromObject $ fromFoldable [ "type" /\ fromString "Point", "coordinates" /\ encodeJson point ]
+
+--makeGeometryJson :: Point -> Json
+--makeGeometryJson point =
+--  fromObject $ fromFoldable [ "type" /\ fromString "Point", "coordinates" /\ toJson point]
+--
+--
+--fromGeometryJson :: Json -> Either JsonDecodeError Point
+--fromGeometryJson json = do
+----  pure { latitude: 0.0, longitude: 0.0, mbElevation: Nothing}
+--  geometry <- decodeJson json
+--  coordinates <- geometry.: "coordinates"
+--  fromJson coordinates
+
+
+
+
+
 

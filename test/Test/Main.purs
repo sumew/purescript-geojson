@@ -10,6 +10,7 @@ import Effect.Class (liftEffect)
 import Effect.Class.Console (log)
 import Effect.Exception (throw)
 import Test.Assert as Assert
+import Test.Point (mesbah, urby)
 
 
 type Test = ReaderT Int Effect Unit
@@ -36,5 +37,6 @@ failure = liftEffect <<< throw
 
 main :: Effect Unit
 main = do
-  log "🍝"
-  log "You should add some tests."
+--  log "🍝"
+  urby 
+  mesbah

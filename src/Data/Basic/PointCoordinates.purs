@@ -2,31 +2,42 @@ module Data.Basic.PointCoordinates where
 
 import Prelude
 
-import Data.Argonaut (Json, JsonDecodeError, decodeJson, encodeJson)
-import Data.Either (Either)
+import Data.Argonaut (class DecodeJson, class EncodeJson, JsonDecodeError(..), decodeJson, encodeJson)
+import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 
-type PointCoordinates =
+newtype PointCoordinates = PointCoordinates
   { latitude :: Number
   , longitude :: Number
   , mbElevation :: Maybe Number
   }
 
+derive newtype instance showPointCoordinates :: Show PointCoordinates
+
+instance encodeJsonPointCoordinates :: EncodeJson PointCoordinates where
+  encodeJson = toNumberArray >>> encodeJson
+
+instance decodeJsonPointCoordinates :: DecodeJson PointCoordinates where
+  decodeJson json = do 
+     array <- decodeJson json
+     fromNumberArray array
+
+
 toNumberArray :: PointCoordinates -> Array Number
-toNumberArray { latitude, longitude, mbElevation } = 
+toNumberArray (PointCoordinates { latitude, longitude, mbElevation }) = 
   case mbElevation of
       Nothing -> [latitude, longitude]
       Just elevation -> [latitude, longitude, elevation]
 
-fromNumberArray :: Array Number -> Maybe PointCoordinates
-fromNumberArray [latitude, longitude, elevation] = Just { latitude, longitude, mbElevation: Just elevation}
-fromNumberArray [latitude, longitude] = Just { latitude, longitude, mbElevation: Nothing }
-fromNumberArray _ = Nothing
+fromNumberArray :: Array Number -> Either JsonDecodeError PointCoordinates
+fromNumberArray [latitude, longitude, elevation] = Right $ PointCoordinates { latitude, longitude, mbElevation: Just elevation}
+fromNumberArray [latitude, longitude] = Right $ PointCoordinates { latitude, longitude, mbElevation: Nothing }
+fromNumberArray _ = Left MissingValue 
 
 
-toJson :: PointCoordinates -> Json
-toJson = toNumberArray >>> encodeJson
-
-fromJson :: Json -> Either JsonDecodeError (Maybe PointCoordinates)
-fromJson json = fromNumberArray <$> decodeJson json
+--toJson :: PointCoordinates -> Json
+--toJson = toNumberArray >>> encodeJson
+--
+--fromJson :: Json -> Either JsonDecodeError (Maybe PointCoordinates)
+--fromJson json = fromNumberArray <$> decodeJson json
 
