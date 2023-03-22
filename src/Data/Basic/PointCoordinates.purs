@@ -35,9 +35,3 @@ fromNumberArray [latitude, longitude] = Right $ PointCoordinates { latitude, lon
 fromNumberArray _ = Left MissingValue 
 
 
---toJson :: PointCoordinates -> Json
---toJson = toNumberArray >>> encodeJson
---
---fromJson :: Json -> Either JsonDecodeError (Maybe PointCoordinates)
---fromJson json = fromNumberArray <$> decodeJson json
-

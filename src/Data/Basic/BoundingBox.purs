@@ -14,6 +14,8 @@ newtype BoundingBox = BoundingBox
   , topRight :: PointCoordinates
   }
 
+derive newtype instance showBoundingBox :: Show BoundingBox
+
 instance decodeJsonBoundingBox :: DecodeJson BoundingBox where
   decodeJson json = do 
      array <- decodeArray decodeJson json
@@ -35,4 +37,7 @@ fromArray [bottomlat, bottomlong, toplat, toplong] = Right $ BoundingBox
 fromArray _ = Left MissingValue
 
 
-
+type GeoJson r =
+  { bbox :: Maybe BoundingBox
+  | r  
+  }
