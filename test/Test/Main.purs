@@ -4,7 +4,7 @@ module Test.Main where
 import Prelude
 
 import Control.Monad.Reader (ReaderT, ask, local, runReaderT)
-import Data.Argonaut (Json, decodeJson, encodeJson, stringify)
+import Data.Argonaut (class DecodeJson, class EncodeJson, Json, decodeJson, encodeJson, stringify)
 import Data.Either (Either(..))
 import Data.Foldable (class Foldable, for_)
 import Data.LineString (LineString(..))
@@ -12,13 +12,14 @@ import Data.Map (Map)
 import Data.Map as Map
 import Data.Monoid (power)
 import Data.MultiPoint (MultiPoint(..))
-import Data.Point (Point)
+import Data.Point (Point(..))
 import Data.Tuple.Nested (type (/\), (/\))
 import Effect (Effect)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (log)
 import Effect.Exception (throw)
 import Test.Fixtures (linestring3d_, linestring_, linestringbbox_, multipoint3d_, multipoint_, multipointbbox_, point3d_, point_, pointbbox_)
+import Type.Prelude (Proxy(..))
 
 
 type Test = ReaderT Int Effect Unit 
@@ -36,25 +37,34 @@ test name run = do
 mkIndent :: Int -> String
 mkIndent = power " "
 
+_point :: Proxy Point
+_point = Proxy
+
+_multiPoint :: Proxy MultiPoint
+_multiPoint = Proxy
+
+_lineString :: Proxy LineString
+_lineString = Proxy
 
 failure :: String -> Test
 failure = liftEffect <<< throw
 
-fixtures :: Array (String /\ Type /\ (Array Json))
-fixtures = 
-  [ "Point" /\ Point /\ [point_,pointbbox_, point3d_]
-  , "MultiPoint" /\ [multipoint_, multipointbbox_, multipoint3d_ ]
-  , "LineString" /\ [linestring_, linestringbbox_, linestring3d_]
+points:: Proxy Point /\ (Array Json)
+points =  _point /\ [point_,pointbbox_, point3d_]
 
-  ]
+multipoints :: Proxy MultiPoint /\ Array Json
+multipoints = _multiPoint /\ [multipoint_, multipointbbox_, multipoint3d_ ]
 
-testa :: Array (String /\ Array Json) ->  Test
-testa fixtureTuple = do
-   for_ fixtureTuple \(name /\ values) ->
-     for_ values \value ->
-       test name do
+linestrings :: Proxy LineString /\ Array Json
+linestrings = _lineString /\ [linestring_, linestringbbox_, linestring3d_]
+
+
+testa :: forall a. DecodeJson a => EncodeJson a => Show a => String -> Proxy a /\ Array Json ->  Test
+testa name (_ /\ fixtures) = do
+     for_ fixtures \value ->
+       test ("Testing " <> name) do
          case decodeJson value of
-             Right (decoded :: Point) ->
+             Right (decoded :: a) ->
                let encoded = encodeJson decoded
                in
                  if encoded == value 
@@ -67,43 +77,6 @@ testa fixtureTuple = do
 main :: Effect Unit
 main = flip runReaderT 0 do 
   log "🍝"
---  testa fixtures
-  test "Point" do
-     for_ [point_, pointbbox_, point3d_] \p ->
-       case decodeJson p of
-           Right (decoded :: Point) ->
-             let encoded = encodeJson decoded
-             in
-               if encoded == p 
-               then pure unit
-               else failure (
-                 "decoded value " <> show decoded <> 
-                 "\n encoded value: " <> stringify encoded <> " doesn't match " <> stringify p 
-                 )
-           _ -> failure ("Failed to properly decode JSON string: " <> stringify p)
-  test "MultiPoint" do
-     for_ [multipoint_, multipointbbox_, multipoint3d_] \p ->
-       case decodeJson p of
-           Right (decoded :: MultiPoint) ->
-             let encoded = encodeJson decoded
-             in
-               if encoded == p 
-               then pure unit
-               else failure (
-                 "decoded value " <> show decoded <> 
-                 "\n encoded value: " <> stringify encoded <> " doesn't match " <> stringify p 
-                 )
-           _ -> failure ("Failed to properly decode JSON string: " <> stringify p)
-  test "LineString" do
-     for_ [linestring_, linestring3d_, linestringbbox_] \p ->
-       case decodeJson p of
-           Right (decoded :: LineString) ->
-             let encoded = encodeJson decoded
-             in
-               if encoded == p 
-               then pure unit
-               else failure (
-                 "decoded value " <> show decoded <> 
-                 "\n encoded value: " <> stringify encoded <> " doesn't match " <> stringify p 
-                 )
-           _ -> failure ("Failed to properly decode JSON string: " <> stringify p)
+  testa "Point" points 
+  testa "MultiPoint" multipoints
+  testa "LineString" linestrings

@@ -31,6 +31,7 @@ to generate this file without the comments in this block.
   , "quickcheck"
   , "transformers"
   , "tuples"
+  , "typelevel-prelude"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
