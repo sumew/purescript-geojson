@@ -17,20 +17,20 @@ newtype LineStringCoordinates = LineStringCoordinates
 derive newtype instance showLineStringCoordinates :: Show LineStringCoordinates
 
 instance encodeJsonLineStringCoordinates :: EncodeJson LineStringCoordinates where
-  encodeJson = toPointCoordinateArray >>> encodeJson
+  encodeJson = toArray >>> encodeJson
 
 instance decodeJsonLineStringCoordinates :: DecodeJson LineStringCoordinates where
   decodeJson json = do
      pointCoordinatesArray <- decodeJson json
-     fromPointCoordinatesArray pointCoordinatesArray 
+     fromArray pointCoordinatesArray 
 
 
-toPointCoordinateArray :: LineStringCoordinates -> Array PointCoordinates
-toPointCoordinateArray (LineStringCoordinates { first, second, rest }) =  [first] <> [second] <> rest
+toArray :: LineStringCoordinates -> Array PointCoordinates
+toArray (LineStringCoordinates { first, second, rest }) =  [first] <> [second] <> rest
 
 
-fromPointCoordinatesArray :: Array PointCoordinates -> Either JsonDecodeError LineStringCoordinates
-fromPointCoordinatesArray xs = case uncons xs of
+fromArray :: Array PointCoordinates -> Either JsonDecodeError LineStringCoordinates
+fromArray xs = case uncons xs of
   Just { head:first, tail } -> 
     case uncons tail of
         Just { head: second, tail: rest } -> Right $ LineStringCoordinates { first, second, rest }
