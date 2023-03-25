@@ -2,29 +2,27 @@ module Test.Main where
 
 
 import Prelude
-import Test.Fixtures
 
 import Control.Monad.Reader (ReaderT, ask, local, runReaderT)
-import Data.Argonaut (class DecodeJson, class EncodeJson, Json, JsonDecodeError, decodeJson, encodeJson, stringify, (.:), (.:?))
-import Data.Basic.PointCoordinates (PointCoordinates(..))
+import Data.Argonaut (class DecodeJson, class EncodeJson, Json, decodeJson, encodeJson, stringify)
 import Data.Either (Either(..))
+import Data.FeatureCollection (FeatureCollection')
 import Data.Foldable (for_)
-import Data.Geometry (Geometry(..), GeometryCollection'(..))
-import Data.Geometry.Feature (Feature'(..))
+import Data.Geometry (GeometryCollection')
+import Data.Geometry.Feature (Feature')
 import Data.LineString (LineString')
-import Data.Maybe (Maybe(..))
 import Data.Monoid (power)
 import Data.MultiLineString (MultiLineString')
-import Data.MultiPoint (MultiPoint'(..))
-import Data.MultiPolygon (MultiPolygon'(..))
-import Data.Point (Point'(..))
-import Data.Polygon (Polygon'(..))
+import Data.MultiPoint (MultiPoint')
+import Data.MultiPolygon (MultiPolygon')
+import Data.Point (Point')
+import Data.Polygon (Polygon')
 import Data.Tuple.Nested (type (/\), (/\))
 import Effect (Effect)
-import Effect.Class (liftEffect)
+import Effect.Class (class MonadEffect, liftEffect)
 import Effect.Class.Console (log)
 import Effect.Exception (throw)
-import Foreign.Object (Object)
+import Test.Fixtures (featureCollectionEmpty_, featureCollection_, featureEmpty_, featureNull_, featureNumberId_, feature_, geometryCollection3d_, geometryCollection_, geometryCollectionbbox_, linestring3d_, linestring_, linestringbbox_, multilinestring3d_, multilinestring_, multilinestringbbox_, multipoint3d_, multipoint_, multipointbbox_, multipolygon3d_, multipolygon_, multipolygonbbox_, point3d_, point_, pointbbox_, polygon3d_, polygon_, polygona_, polygonbbox_)
 import Type.Prelude (Proxy(..))
 
 
@@ -43,58 +41,72 @@ test name run = do
 mkIndent :: Int -> String
 mkIndent = power " "
 
+failure :: String -> Test
+failure = liftEffect <<< throw
+
+--------------------------------------------------------------------------------------------------------------------
 _point :: Proxy Point'
 _point = Proxy
+
+points:: Proxy Point' /\ (Array Json)
+points =  _point /\ [point_,pointbbox_, point3d_]
+--------------------------------------------------------------------------------------------------------------------
 
 _multiPoint :: Proxy MultiPoint'
 _multiPoint = Proxy
 
-_lineString :: Proxy LineString'
-_lineString = Proxy
-
-_multilinestring :: Proxy MultiLineString'
-_multilinestring = Proxy
-
-_polygon :: Proxy Polygon'
-_polygon = Proxy
-
-_multipolygon :: Proxy MultiPolygon'
-_multipolygon = Proxy
-
-_geometrycollection :: Proxy GeometryCollection'
-_geometrycollection = Proxy
-
-_feature :: Proxy Feature'
-_feature = Proxy
-
-
-failure :: String -> Test
-failure = liftEffect <<< throw
-
-points:: Proxy Point' /\ (Array Json)
-points =  _point /\ [point_,pointbbox_, point3d_]
-
 multipoints :: Proxy MultiPoint' /\ Array Json
 multipoints = _multiPoint /\ [multipoint_, multipointbbox_, multipoint3d_ ]
+
+--------------------------------------------------------------------------------------------------------------------
+_lineString :: Proxy LineString'
+_lineString = Proxy
 
 linestrings :: Proxy LineString' /\ Array Json
 linestrings = _lineString /\ [linestring_, linestringbbox_, linestring3d_]
 
+--------------------------------------------------------------------------------------------------------------------
+_multilinestring :: Proxy MultiLineString'
+_multilinestring = Proxy
+
 multilinestrings :: Proxy MultiLineString' /\ Array Json
 multilinestrings = _multilinestring /\ [ multilinestring_, multilinestringbbox_, multilinestring3d_]
+
+--------------------------------------------------------------------------------------------------------------------
+_polygon :: Proxy Polygon'
+_polygon = Proxy
 
 polygons :: Proxy Polygon' /\ Array Json
 polygons = _polygon /\ [polygona_, polygon_, polygonbbox_, polygon3d_ ]
  
+--------------------------------------------------------------------------------------------------------------------
+_multipolygon :: Proxy MultiPolygon'
+_multipolygon = Proxy
+
 multipolygons :: Proxy MultiPolygon' /\ Array Json
 multipolygons = _multipolygon /\ [multipolygon_, multipolygonbbox_, multipolygon3d_]
 
+--------------------------------------------------------------------------------------------------------------------
+_geometrycollection :: Proxy GeometryCollection'
+_geometrycollection = Proxy
+
 geometrycollections :: Proxy GeometryCollection' /\ Array Json
 geometrycollections = _geometrycollection /\ [geometryCollection_, geometryCollectionbbox_, geometryCollection3d_]
-
+--------------------------------------------------------------------------------------------------------------------
+_feature :: Proxy Feature'
+_feature = Proxy
 
 features :: Proxy Feature' /\ Array Json
 features = _feature /\ [feature_, featureNull_, featureNumberId_, featureEmpty_]
+
+--------------------------------------------------------------------------------------------------------------------
+_featurecollection :: Proxy FeatureCollection'
+_featurecollection = Proxy
+
+featurecollections :: Proxy FeatureCollection' /\ Array Json
+featurecollections = _featurecollection /\ [featureCollection_, featureCollectionEmpty_ ]
+
+--------------------------------------------------------------------------------------------------------------------
 
 main :: Effect Unit
 main = flip runReaderT 0 do 
@@ -107,7 +119,7 @@ main = flip runReaderT 0 do
   decenc "MultiPolygon" multipolygons
   decenc "GeometryCollection" geometrycollections
   decenc "Feature" features
-
+  decenc "FeatureCollection" featurecollections
 
 
 enc :: forall a. EncodeJson a => Show a => a -> Test
@@ -125,28 +137,19 @@ dec _ json  =  do
       Left err -> log $ show err
       
 
-kaka :: GeometryCollection'
-kaka = GeometryCollection'
-  { geometries: [Point (Point' { coordinates: PointCoordinates { latitude: 0.0, longitude: 0.0, mbElevation: Nothing }, bbox: Nothing})]
-  , bbox: Nothing
-  }
 
-
-
-
-
-decenc :: forall a. DecodeJson a => EncodeJson a => Show a => String -> Proxy a /\ Array Json ->  Test
+decenc :: forall a m. MonadEffect m => DecodeJson a => EncodeJson a => Show a => String -> Proxy a /\ Array Json -> m Unit 
 decenc name (_ /\ fixtures) = do
-       test ("Testing " <> name) do
-         for_ fixtures \value ->
-           case decodeJson value of
-               Right (decoded :: a) ->
-                 let encoded = encodeJson decoded
-                 in
-                   if encoded == value 
-                   then pure unit
-                   else failure (
-                     "decoded value " <> show decoded <> 
-                     "\n encoded value: " <> stringify encoded <> " doesn't match " <> stringify value 
-                     )
-               _ -> failure ("Failed to properly decode JSON string: " <> stringify value)
+  log ("Testing " <> name) 
+  for_ fixtures \value ->
+    case decodeJson value of
+        Right (decoded :: a) ->
+          let encoded = encodeJson decoded
+          in
+            if encoded == value 
+            then pure unit
+            else liftEffect $ throw (
+              "decoded value " <> show decoded <> 
+              "\n encoded value: " <> stringify encoded <> " doesn't match " <> stringify value 
+              )
+        _ -> liftEffect $ throw ("Failed to properly decode JSON string: " <> stringify value)

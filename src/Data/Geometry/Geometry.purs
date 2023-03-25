@@ -2,7 +2,7 @@ module Data.Geometry where
 
 import Prelude
 
-import Data.Argonaut (class DecodeJson, class EncodeJson, Json, JsonDecodeError(..), decodeJson, encodeJson, jsonEmptyObject, jsonNull, (.:), (.:?), (:=), (:=?), (~>), (~>?))
+import Data.Argonaut (class DecodeJson, class EncodeJson, Json, JsonDecodeError(..), decodeJson, encodeJson, isNull, jsonEmptyObject, jsonNull, (.:), (.:?), (:=), (:=?), (~>), (~>?))
 import Data.Basic.BoundingBox (GeoJson)
 import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
@@ -51,7 +51,7 @@ instance showGeometry :: Show Geometry where
   show (Polygon p) = show p
   show (MultiPolygon mp) = show mp
   show (GeometryCollection gc) = show gc
-  show _ = mempty
+  show NoGeometry = "null" 
 
 
 geometryFrom :: String -> Json -> Either JsonDecodeError Geometry
@@ -76,9 +76,10 @@ instance encodeGeometry :: EncodeJson Geometry where
   encodeJson (GeometryCollection gc) = encodeJson gc
 
 instance decodeGeometry :: DecodeJson Geometry where
-  decodeJson json = do
-     geometry   <- decodeJson json
-     geometryType  <- geometry .: "type"
-     geometryFrom geometryType json 
-
+  decodeJson json = 
+    if isNull json then pure NoGeometry
+    else do
+      geometry   <- decodeJson json
+      geometryType  <- geometry .: "type"
+      geometryFrom geometryType json 
 

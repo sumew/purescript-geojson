@@ -1,0 +1,19 @@
+{
+  "name": "purescript-geojson",
+  "version": "1.0.0",
+  "description": "An Purescript implementaiton of the GeoJson standard",
+  "scripts": {
+    "build": "eslin",
+    "test": "spago test --no-install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sumew/purescript-geojson.git"
+  },
+  "author": "Musé Mekuria",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sumew/purescript-geojson/issues"
+  },
+  "homepage": "https://github.com/sumew/purescript-geojson#readme",
+}
