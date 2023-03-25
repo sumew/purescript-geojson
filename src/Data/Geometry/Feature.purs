@@ -3,14 +3,12 @@ module Data.Geometry.Feature where
 
 import Prelude
 
-import Control.Alt ((<|>))
-import Data.Argonaut (class DecodeJson, class EncodeJson, Json, JsonDecodeError(..), decodeJson, encodeJson, jsonEmptyObject, stringify, toNumber, toString, (.:), (.:!), (.:?), (:=), (:=?), (~>), (~>?))
-import Data.Basic.BoundingBox (BoundingBox(..))
-import Data.Either (Either(..), note)
+import Data.Argonaut (class DecodeJson, class EncodeJson, Json, JsonDecodeError(..), decodeJson, encodeJson, jsonEmptyObject, stringify, toNumber, toString, (.:), (.:?), (:=), (:=?), (~>), (~>?))
+import Data.Basic.BoundingBox (BoundingBox)
+import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
 import Data.Geometry (Geometry)
 import Data.Maybe (Maybe(..))
-import Data.Show.Generic (genericShow)
 
 
 data FeatureId 
@@ -50,7 +48,7 @@ instance featurePropertiesEncodeJson :: EncodeJson FeatureProperties where
 
 
 newtype Feature'  = Feature' 
-  { geometry :: Maybe Geometry
+  { geometry :: Geometry
   , properties :: Maybe FeatureProperties 
   , id :: Maybe FeatureId
   , bbox :: Maybe BoundingBox
@@ -62,7 +60,7 @@ derive newtype instance showFeature :: Show Feature'
 instance decodeJsonFeature :: DecodeJson Feature' where
   decodeJson json = do
      feature <- decodeJson json
-     geometry <- feature .:? "geometry"
+     geometry <- feature .: "geometry"
      properties <- feature .:? "properties"
      id <- feature .:? "id"
      bbox <- feature .:? "bbox"
@@ -71,8 +69,8 @@ instance decodeJsonFeature :: DecodeJson Feature' where
 instance encodeJsonFeature :: EncodeJson Feature' where
   encodeJson (Feature' { geometry, properties, id, bbox }) = 
     "type" := "Feature"
-    ~> "geometry" :=? (encodeJson <$> geometry)
-    ~>? "properties" :=? (encodeJson <$> properties)
+    ~> "geometry" := encodeJson geometry
+    ~> "properties" :=? (encodeJson <$> properties)
     ~>? "id" :=? (encodeJson <$> id)
     ~>? "bbox" :=? (encodeJson <$> bbox)
     ~>? jsonEmptyObject

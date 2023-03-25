@@ -2,7 +2,7 @@ module Data.Geometry where
 
 import Prelude
 
-import Data.Argonaut (class DecodeJson, class EncodeJson, Json, JsonDecodeError(..), decodeJson, encodeJson, jsonEmptyObject, (.:), (.:?), (:=), (:=?), (~>), (~>?))
+import Data.Argonaut (class DecodeJson, class EncodeJson, Json, JsonDecodeError(..), decodeJson, encodeJson, jsonEmptyObject, jsonNull, (.:), (.:?), (:=), (:=?), (~>), (~>?))
 import Data.Basic.BoundingBox (GeoJson)
 import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
@@ -33,7 +33,8 @@ instance encodeGeometryCollection :: EncodeJson GeometryCollection' where
 
 
 data Geometry
-  = Point Point'
+  = NoGeometry
+  | Point Point'
   | MultiPoint MultiPoint'
   | LineString LineString'
   | MultiLineString MultiLineString'
@@ -50,6 +51,7 @@ instance showGeometry :: Show Geometry where
   show (Polygon p) = show p
   show (MultiPolygon mp) = show mp
   show (GeometryCollection gc) = show gc
+  show _ = mempty
 
 
 geometryFrom :: String -> Json -> Either JsonDecodeError Geometry
@@ -60,9 +62,11 @@ geometryFrom "MultiLineString" multilinestringJson = MultiLineString <$> decodeJ
 geometryFrom "Polygon" polygonJson = Polygon <$> decodeJson polygonJson 
 geometryFrom "MultiPolygon" multipolygonJson = MultiPolygon <$> decodeJson multipolygonJson
 geometryFrom "GeometryCollection" geometryCollectionJson = GeometryCollection <$> decodeJson geometryCollectionJson
+geometryFrom "null" _ = pure NoGeometry
 geometryFrom _ json = Left (UnexpectedValue json)
 
 instance encodeGeometry :: EncodeJson Geometry where
+  encodeJson NoGeometry = jsonNull
   encodeJson (Point p) = encodeJson p
   encodeJson (MultiPoint mp) = encodeJson mp
   encodeJson (LineString ls) = encodeJson ls
