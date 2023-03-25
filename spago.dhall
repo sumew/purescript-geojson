@@ -1,4 +1,4 @@
-{ name = "purescript-geojson"
+{ name = "geojson"
 , license = "MIT"
 , repository = "https://github.com/sumew/purescript-geojson"
 , dependencies =
