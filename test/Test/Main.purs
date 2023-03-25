@@ -10,6 +10,7 @@ import Data.Basic.PointCoordinates (PointCoordinates(..))
 import Data.Either (Either(..))
 import Data.Foldable (for_)
 import Data.Geometry (Geometry(..), GeometryCollection'(..))
+import Data.Geometry.Feature (Feature'(..))
 import Data.LineString (LineString')
 import Data.Maybe (Maybe(..))
 import Data.Monoid (power)
@@ -63,6 +64,10 @@ _multipolygon = Proxy
 _geometrycollection :: Proxy GeometryCollection'
 _geometrycollection = Proxy
 
+_feature :: Proxy Feature'
+_feature = Proxy
+
+
 failure :: String -> Test
 failure = liftEffect <<< throw
 
@@ -87,6 +92,10 @@ multipolygons = _multipolygon /\ [multipolygon_, multipolygonbbox_, multipolygon
 geometrycollections :: Proxy GeometryCollection' /\ Array Json
 geometrycollections = _geometrycollection /\ [geometryCollection_, geometryCollectionbbox_, geometryCollection3d_]
 
+
+features :: Proxy Feature' /\ Array Json
+features = _feature /\ [feature_, featureNull_, featureNumberId_, featureEmpty_]
+
 main :: Effect Unit
 main = flip runReaderT 0 do 
   log "🍝"
@@ -97,7 +106,7 @@ main = flip runReaderT 0 do
   decenc "Polygon" polygons
   decenc "MultiPolygon" multipolygons
   decenc "GeometryCollection" geometrycollections
-  enc kaka
+  decenc "Feature" features
 
 
 

@@ -3,9 +3,10 @@ module Data.Geometry.Feature where
 
 import Prelude
 
-import Data.Argonaut (class DecodeJson, Json, JsonDecodeError(..), decodeJson, (.:?))
+import Control.Alt ((<|>))
+import Data.Argonaut (class DecodeJson, class EncodeJson, Json, JsonDecodeError(..), decodeJson, encodeJson, jsonEmptyObject, stringify, toNumber, toString, (.:), (.:!), (.:?), (:=), (:=?), (~>), (~>?))
 import Data.Basic.BoundingBox (BoundingBox(..))
-import Data.Either (Either(..))
+import Data.Either (Either(..), note)
 import Data.Generic.Rep (class Generic)
 import Data.Geometry (Geometry)
 import Data.Maybe (Maybe(..))
@@ -14,30 +15,48 @@ import Data.Show.Generic (genericShow)
 
 data FeatureId 
   = FeatureIdString String 
-  | FeatureIdNumber Int
+  | FeatureIdNumber Number 
 
 derive instance genericFeatureId :: Generic FeatureId _
 
 instance showFeatureId :: Show FeatureId where
-  show = genericShow
+  show (FeatureIdString str) = show str 
+  show (FeatureIdNumber nbr) = show nbr
 
 instance featureIdDecodeJson :: DecodeJson FeatureId where
-  decodeJson json = do 
-     decoded <- decodeJson json
-     decodeda <- case decodeJson json of
-         Right (intId :: Int) -> Right $ FeatureIdNumber intId
---         Right (stringId :: String) -> Right $ FeatureIdString stringId
-         _ -> Left MissingValue 
-     pure decodeda
-         
-         
+  decodeJson json = 
+    case toNumber json of
+        Just number -> Right $ FeatureIdNumber number
+        _ -> case toString json of
+                 Just string -> Right $ FeatureIdString string
+                 _ -> Left $ TypeMismatch "Expected String or Number for FeatureId" 
+
+instance featureIdEncodeJson :: EncodeJson FeatureId where
+  encodeJson (FeatureIdString string) = encodeJson string
+  encodeJson (FeatureIdNumber number) = encodeJson number
+
+
+newtype FeatureProperties = FeatureProperties Json
+
+instance showFeatureProperties :: Show FeatureProperties where
+  show (FeatureProperties json) = stringify json
+
+instance featurePropertiesDecodeJson :: DecodeJson FeatureProperties where 
+  decodeJson json = pure $ FeatureProperties json
+
+instance featurePropertiesEncodeJson :: EncodeJson FeatureProperties where
+  encodeJson (FeatureProperties properties) = properties
+
+
 
 newtype Feature'  = Feature' 
   { geometry :: Maybe Geometry
-  , properties :: Maybe Json
-  , id :: FeatureId
+  , properties :: Maybe FeatureProperties 
+  , id :: Maybe FeatureId
   , bbox :: Maybe BoundingBox
   }
+
+derive newtype instance showFeature :: Show Feature' 
 
 
 instance decodeJsonFeature :: DecodeJson Feature' where
@@ -49,5 +68,13 @@ instance decodeJsonFeature :: DecodeJson Feature' where
      bbox <- feature .:? "bbox"
      pure $ Feature' { geometry, properties, id, bbox }
 
+instance encodeJsonFeature :: EncodeJson Feature' where
+  encodeJson (Feature' { geometry, properties, id, bbox }) = 
+    "type" := "Feature"
+    ~> "geometry" :=? (encodeJson <$> geometry)
+    ~>? "properties" :=? (encodeJson <$> properties)
+    ~>? "id" :=? (encodeJson <$> id)
+    ~>? "bbox" :=? (encodeJson <$> bbox)
+    ~>? jsonEmptyObject
 
 
