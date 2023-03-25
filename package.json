@@ -1,9 +1,9 @@
 {
   "name": "purescript-geojson",
-  "version": "1.0.0",
+  "version": "v0.0.1",
   "description": "An Purescript implementaiton of the GeoJson standard",
   "scripts": {
-    "build": "eslin",
+    "build": "spago build",
     "test": "spago test --no-install"
   },
   "repository": {
