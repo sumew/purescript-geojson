@@ -409,7 +409,6 @@ export const geometryCollection3d_ =
   ]
 }
 
-
 export const geometryCollection_ =
 {
   "type": "GeometryCollection",
@@ -417,10 +416,6 @@ export const geometryCollection_ =
     {
       "type": "Point",
       "coordinates": [0, 0]
-    },
-    {
-      "type": "LineString",
-      "coordinates": [[-110, 45], [110, -45]]
     },
     {
       "type": "Polygon",
@@ -441,6 +436,36 @@ export const geometryCollection_ =
         ]
       ]
     }
+  ]
+}
+
+export const polygona_ =
+
+{
+  "type": "Polygon",
+  "coordinates": [
+    [
+      [100.0, 0.0],
+      [101.0, 0.0],
+      [101.0, 1.0],
+      [100.0, 1.0],
+      [100.0, 0.0]
+    ],
+    [
+      [100.8, 0.8],
+      [100.8, 0.2],
+      [100.2, 0.2],
+      [100.2, 0.8],
+      [100.8, 0.8]
+    ]
+  ]
+}
+
+export const geocoll =
+{
+  "type": "GeometryCollection",
+  "geometries": [
+    point_, point3d_, multipoint_, linestring_, linestring3d_, linestringbbox_, multilinestring_
   ]
 }
 

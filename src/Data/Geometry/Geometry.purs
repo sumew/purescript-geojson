@@ -2,49 +2,79 @@ module Data.Geometry where
 
 import Prelude
 
-import Data.Argonaut (class EncodeJson, decodeJson, encodeJson, (.:), (:=), (~>))
+import Data.Argonaut (class DecodeJson, class EncodeJson, Json, JsonDecodeError(..), decodeJson, encodeJson, jsonEmptyObject, (.:), (.:?), (:=), (:=?), (~>), (~>?))
 import Data.Basic.BoundingBox (GeoJson)
+import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
-import Data.LineString (LineString(..))
-import Data.MultiLineString (MultiLineString(..))
-import Data.MultiPoint (MultiPoint(..))
-import Data.MultiPolygon (MultiPolygon(..))
-import Data.Point (Point(..))
-import Data.Polygon (Polygon(..))
-import Data.Show.Generic (genericShow)
+import Data.LineString (LineString')
+import Data.MultiLineString (MultiLineString')
+import Data.MultiPoint (MultiPoint')
+import Data.MultiPolygon (MultiPolygon')
+import Data.Point (Point')
+import Data.Polygon (Polygon')
 
-newtype GeometryCollection = GeometryCollection (GeoJson (geometries :: Array Geometry))
+newtype GeometryCollection' = GeometryCollection' (GeoJson (geometries :: Array Geometry))
+derive newtype instance showGeometryCollection :: Show GeometryCollection'
+
+
+instance decodeGeometryCollection :: DecodeJson GeometryCollection' where
+  decodeJson json = do
+     geometry <- decodeJson json
+     geometries <- geometry .: "geometries"
+     bbox <- geometry .:? "bbox"
+     pure $ GeometryCollection' { geometries, bbox }
+
+instance encodeGeometryCollection :: EncodeJson GeometryCollection' where
+  encodeJson (GeometryCollection' { geometries, bbox }) =
+    "type" := "GeometryCollection"
+    ~> "geometries" := encodeJson geometries
+    ~> "bbox" :=? (encodeJson <$> bbox)
+    ~>? jsonEmptyObject
+
 
 data Geometry
-  = GPoint Point
-  | GMultiPoint MultiPoint
-  | GLineString LineString
-  | GMultiLineString MultiLineString
-  | GPolygon Polygon
-  | GMultiPolygon MultiPolygon
-  | GGeometryCollection 
+  = Point Point'
+  | MultiPoint MultiPoint'
+  | LineString LineString'
+  | MultiLineString MultiLineString'
+  | Polygon Polygon'
+  | MultiPolygon MultiPolygon'
+  | GeometryCollection GeometryCollection'
 
 derive instance genericGeometry :: Generic Geometry _
-
 instance showGeometry :: Show Geometry where
-  show = case _ of 
-    GeometryCollection arr -> show arr
-    other -> genericShow other
+  show (Point p) = show p
+  show (MultiPoint mp) = show mp
+  show (LineString ls) = show ls 
+  show (MultiLineString mls) = show mls
+  show (Polygon p) = show p
+  show (MultiPolygon mp) = show mp
+  show (GeometryCollection gc) = show gc
+
+
+geometryFrom :: String -> Json -> Either JsonDecodeError Geometry
+geometryFrom "Point" pointJson = Point <$> decodeJson pointJson
+geometryFrom "MultiPoint" multipointJson = MultiPoint <$> decodeJson multipointJson
+geometryFrom "LineString" linestringJson = LineString <$> decodeJson linestringJson
+geometryFrom "MultiLineString" multilinestringJson = MultiLineString <$> decodeJson multilinestringJson
+geometryFrom "Polygon" polygonJson = Polygon <$> decodeJson polygonJson 
+geometryFrom "MultiPolygon" multipolygonJson = MultiPolygon <$> decodeJson multipolygonJson
+geometryFrom "GeometryCollection" geometryCollectionJson = GeometryCollection <$> decodeJson geometryCollectionJson
+geometryFrom _ json = Left (UnexpectedValue json)
 
 instance encodeGeometry :: EncodeJson Geometry where
-  encodeJson (GPoint p) = encodeJson p
-  encodeJson (GMultiPoint mp) = encodeJson mp
-  encodeJson (GLineString ls) = encodeJson ls
-  encodeJson (GMultiLineString mls) = encodeJson mls
-  encodeJson (GPolygon p) = encodeJson p
-  encodeJson (GMultiPolygon mp) = encodeJson mp
-  encodeJson (GeometryCollection geometries bbox) = 
-    "type" := "GeometryCollection"
-    ~> "geometries" := (encodeJson <$> geometries)
-    ~> "bbox" :=? (encodeJson bbox)
+  encodeJson (Point p) = encodeJson p
+  encodeJson (MultiPoint mp) = encodeJson mp
+  encodeJson (LineString ls) = encodeJson ls
+  encodeJson (MultiLineString mls) = encodeJson mls
+  encodeJson (Polygon p) = encodeJson p
+  encodeJson (MultiPolygon mp) = encodeJson mp
+  encodeJson (GeometryCollection gc) = encodeJson gc
 
---instance decodeGeometry :: DecodeJson Geometry where
---  decodeJson json = do
---     geometry <- decodeJson json
---     typs_ <- .: "type"
+instance decodeGeometry :: DecodeJson Geometry where
+  decodeJson json = do
+     geometry   <- decodeJson json
+     geometryType  <- geometry .: "type"
+     geometryFrom geometryType json 
+
 

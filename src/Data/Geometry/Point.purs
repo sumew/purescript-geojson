@@ -7,22 +7,22 @@ import Data.Basic.BoundingBox (BoundingBox)
 import Data.Basic.PointCoordinates (PointCoordinates)
 import Data.Maybe (Maybe)
 
-newtype Point = Point 
+newtype Point' = Point'
   { coordinates :: PointCoordinates 
   , bbox :: Maybe BoundingBox
   }
 
-derive newtype instance showPoint :: Show Point
+derive newtype instance showPoint :: Show Point'
 
-instance decodeJsonPoint :: DecodeJson Point where
+instance decodeJsonPoint :: DecodeJson Point' where
   decodeJson json = do
      geometry <- decodeJson json
      coordinates <- geometry .: "coordinates"
      bbox <- geometry .:? "bbox"
-     pure $ Point { coordinates, bbox }
+     pure $ Point' { coordinates, bbox }
 
-instance encodeJson :: EncodeJson Point where
-  encodeJson (Point { coordinates, bbox }) = 
+instance encodeJson :: EncodeJson Point' where
+  encodeJson (Point' { coordinates, bbox }) = 
     "type" := "Point"
       ~> "coordinates" := (encodeJson coordinates)
       ~> "bbox" :=? (encodeJson <$> bbox)
