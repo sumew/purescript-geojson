@@ -4,11 +4,11 @@ import Prelude
 
 import Data.Argonaut (class DecodeJson, class EncodeJson, decodeJson, encodeJson, jsonEmptyObject, (.:), (.:?), (:=), (:=?), (~>), (~>?))
 import Data.Basic.BoundingBox (BoundingBox)
-import Data.Basic.PointCoordinates (PointCoordinates)
+import Data.Basic.Coordinates (Coordinates)
 import Data.Maybe (Maybe)
 
 newtype Point' = Point'
-  { coordinates :: PointCoordinates 
+  { coordinates :: Coordinates 
   , bbox :: Maybe BoundingBox
   }
 

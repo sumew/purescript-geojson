@@ -4,10 +4,10 @@ import Prelude
 
 import Data.Argonaut (class DecodeJson, class EncodeJson, decodeJson, encodeJson, jsonEmptyObject, (.:), (.:?), (:=), (:=?), (~>), (~>?))
 import Data.Basic.BoundingBox (GeoJson)
-import Data.Basic.PointCoordinates (PointCoordinates)
+import Data.Basic.Coordinates (Coordinates)
 
 
-newtype MultiPoint' = MultiPoint' (GeoJson (coordinates :: Array PointCoordinates) )
+newtype MultiPoint' = MultiPoint' (GeoJson (coordinates :: Array Coordinates) )
 
 derive newtype instance showMultiPoint :: Show MultiPoint'
 
