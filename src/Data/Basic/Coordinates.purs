@@ -7,31 +7,31 @@ import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 
 newtype Coordinates = Coordinates
-  { lat :: Number
-  , lon :: Number
+  { lon :: Number
+  , lat :: Number
   , mbElev :: Maybe Number
   }
 
 derive newtype instance showPointCoordinates :: Show Coordinates
 
-instance encodeJsonPointCoordinates :: EncodeJson Coordinates where
+instance encodeJson :: EncodeJson Coordinates where
   encodeJson = toNumberArray >>> encodeJson
 
-instance decodeJsonPointCoordinates :: DecodeJson Coordinates where
+instance decodeJson :: DecodeJson Coordinates where
   decodeJson json = do 
      array <- decodeJson json
      fromNumberArray array
 
 
 toNumberArray :: Coordinates -> Array Number
-toNumberArray (Coordinates { lat, lon, mbElev }) = 
+toNumberArray (Coordinates { lon, lat, mbElev }) = 
   case mbElev of
-      Nothing -> [lat, lon]
-      Just elev -> [lat, lon, elev]
+      Nothing -> [lon, lat]
+      Just elev -> [lon, lat, elev]
 
 fromNumberArray :: Array Number -> Either JsonDecodeError Coordinates
-fromNumberArray [lat, lon, elev] = Right $ Coordinates { lat, lon, mbElev: Just elev }
-fromNumberArray [lat, lon] = Right $ Coordinates { lat, lon, mbElev: Nothing }
+fromNumberArray [lon, lat, elev] = Right $ Coordinates { lon, lat, mbElev: Just elev }
+fromNumberArray [lon, lat] = Right $ Coordinates { lon, lat, mbElev: Nothing }
 fromNumberArray _ = Left MissingValue 
 
 

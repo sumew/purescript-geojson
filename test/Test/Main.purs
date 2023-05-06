@@ -6,17 +6,17 @@ import Prelude
 import Control.Monad.Reader (ReaderT, ask, local, runReaderT)
 import Data.Argonaut (class DecodeJson, class EncodeJson, Json, decodeJson, encodeJson, stringify)
 import Data.Either (Either(..))
-import Data.FeatureCollection (FeatureCollection')
+import Data.FeatureCollection (FeatureCollection)
 import Data.Foldable (for_)
-import Data.Geometry (GeometryCollection')
-import Data.Geometry.Feature (Feature')
-import Data.LineString (LineString')
+import Data.Geometry (GeometryCollection)
+import Data.Geometry.Feature (Feature)
+import Data.LineString (LineString)
 import Data.Monoid (power)
-import Data.MultiLineString (MultiLineString')
-import Data.MultiPoint (MultiPoint')
-import Data.MultiPolygon (MultiPolygon')
-import Data.Point (Point')
-import Data.Polygon (Polygon')
+import Data.MultiLineString (MultiLineString)
+import Data.MultiPoint (MultiPoint)
+import Data.MultiPolygon (MultiPolygon)
+import Data.Point (Point)
+import Data.Polygon (Polygon)
 import Data.Tuple.Nested (type (/\), (/\))
 import Effect (Effect)
 import Effect.Class (class MonadEffect, liftEffect)
@@ -45,65 +45,65 @@ failure :: String -> Test
 failure = liftEffect <<< throw
 
 --------------------------------------------------------------------------------------------------------------------
-_point :: Proxy Point'
+_point :: Proxy Point
 _point = Proxy
 
-points:: Proxy Point' /\ (Array Json)
+points:: Proxy Point /\ (Array Json)
 points =  _point /\ [point_,pointbbox_, point3d_]
 --------------------------------------------------------------------------------------------------------------------
 
-_multiPoint :: Proxy MultiPoint'
+_multiPoint :: Proxy MultiPoint
 _multiPoint = Proxy
 
-multipoints :: Proxy MultiPoint' /\ Array Json
+multipoints :: Proxy MultiPoint /\ Array Json
 multipoints = _multiPoint /\ [multipoint_, multipointbbox_, multipoint3d_ ]
 
 --------------------------------------------------------------------------------------------------------------------
-_lineString :: Proxy LineString'
+_lineString :: Proxy LineString
 _lineString = Proxy
 
-linestrings :: Proxy LineString' /\ Array Json
+linestrings :: Proxy LineString /\ Array Json
 linestrings = _lineString /\ [linestring_, linestringbbox_, linestring3d_]
 
 --------------------------------------------------------------------------------------------------------------------
-_multilinestring :: Proxy MultiLineString'
+_multilinestring :: Proxy MultiLineString
 _multilinestring = Proxy
 
-multilinestrings :: Proxy MultiLineString' /\ Array Json
+multilinestrings :: Proxy MultiLineString /\ Array Json
 multilinestrings = _multilinestring /\ [ multilinestring_, multilinestringbbox_, multilinestring3d_]
 
 --------------------------------------------------------------------------------------------------------------------
-_polygon :: Proxy Polygon'
+_polygon :: Proxy Polygon
 _polygon = Proxy
 
-polygons :: Proxy Polygon' /\ Array Json
+polygons :: Proxy Polygon /\ Array Json
 polygons = _polygon /\ [polygona_, polygon_, polygonbbox_, polygon3d_ ]
  
 --------------------------------------------------------------------------------------------------------------------
-_multipolygon :: Proxy MultiPolygon'
+_multipolygon :: Proxy MultiPolygon
 _multipolygon = Proxy
 
-multipolygons :: Proxy MultiPolygon' /\ Array Json
+multipolygons :: Proxy MultiPolygon /\ Array Json
 multipolygons = _multipolygon /\ [multipolygon_, multipolygonbbox_, multipolygon3d_]
 
 --------------------------------------------------------------------------------------------------------------------
-_geometrycollection :: Proxy GeometryCollection'
+_geometrycollection :: Proxy GeometryCollection
 _geometrycollection = Proxy
 
-geometrycollections :: Proxy GeometryCollection' /\ Array Json
+geometrycollections :: Proxy GeometryCollection /\ Array Json
 geometrycollections = _geometrycollection /\ [geometryCollection_, geometryCollectionbbox_, geometryCollection3d_]
 --------------------------------------------------------------------------------------------------------------------
-_feature :: Proxy Feature'
+_feature :: Proxy Feature
 _feature = Proxy
 
-features :: Proxy Feature' /\ Array Json
+features :: Proxy Feature /\ Array Json
 features = _feature /\ [feature_, featureNull_, featureNumberId_, featureEmpty_]
 
 --------------------------------------------------------------------------------------------------------------------
-_featurecollection :: Proxy FeatureCollection'
+_featurecollection :: Proxy FeatureCollection
 _featurecollection = Proxy
 
-featurecollections :: Proxy FeatureCollection' /\ Array Json
+featurecollections :: Proxy FeatureCollection /\ Array Json
 featurecollections = _featurecollection /\ [featureCollection_, featureCollectionEmpty_ ]
 
 --------------------------------------------------------------------------------------------------------------------

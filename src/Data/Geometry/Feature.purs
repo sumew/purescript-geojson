@@ -47,27 +47,27 @@ instance featurePropertiesEncodeJson :: EncodeJson FeatureProperties where
 
 
 
-newtype Feature'  = Feature' 
+newtype Feature  = Feature 
   { geometry :: Geometry
   , properties :: Maybe FeatureProperties 
   , id :: Maybe FeatureId
   , bbox :: Maybe BoundingBox
   }
 
-derive newtype instance showFeature :: Show Feature' 
+derive newtype instance showFeature :: Show Feature
 
 
-instance decodeJsonFeature :: DecodeJson Feature' where
+instance decodeJsonFeature :: DecodeJson Feature where
   decodeJson json = do
      feature <- decodeJson json
      geometry <- feature .: "geometry"
      properties <- feature .:? "properties"
      id <- feature .:? "id"
      bbox <- feature .:? "bbox"
-     pure $ Feature' { geometry, properties, id, bbox }
+     pure $ Feature { geometry, properties, id, bbox }
 
-instance encodeJsonFeature :: EncodeJson Feature' where
-  encodeJson (Feature' { geometry, properties, id, bbox }) = 
+instance encodeJsonFeature :: EncodeJson Feature where
+  encodeJson (Feature { geometry, properties, id, bbox }) = 
     "type" := "Feature"
     ~> "geometry" := encodeJson geometry
     ~> "properties" :=? (encodeJson <$> properties)

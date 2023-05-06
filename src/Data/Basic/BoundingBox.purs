@@ -30,14 +30,14 @@ toArray (BoundingBox { sw, ne }) = PC.toNumberArray sw <> PC.toNumberArray ne
 
 
 fromArray :: Array Number -> Either JsonDecodeError BoundingBox 
-fromArray [bottomlat, bottomlong, toplat, toplong] = Right $ BoundingBox 
-  { sw: Coordinates {lat: bottomlat, lon: bottomlong, mbElev: Nothing } 
-  , ne: Coordinates {lat:toplat, lon: toplong, mbElev: Nothing } 
+fromArray [blon, blat, tlon, tlat] = Right $ BoundingBox 
+  { sw: Coordinates {lon: blon, lat: blat, mbElev: Nothing } 
+  , ne: Coordinates {lon:tlon, lat: tlat, mbElev: Nothing } 
   }
 fromArray _ = Left MissingValue
 
 
-type GeoJson r =
-  { bbox :: Maybe BoundingBox
-  | r  
-  }
+--type GeoJson r =
+--  { bbox :: Maybe BoundingBox
+--  | r  
+--  }
