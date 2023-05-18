@@ -22,7 +22,7 @@ import Effect (Effect)
 import Effect.Class (class MonadEffect, liftEffect)
 import Effect.Class.Console (log)
 import Effect.Exception (throw)
-import Test.Fixtures (featureCollectionEmpty_, featureCollection_, featureEmpty_, featureNull_, featureNumberId_, feature_, geometryCollection3d_, geometryCollection_, geometryCollectionbbox_, linestring3d_, linestring_, linestringbbox_, multilinestring3d_, multilinestring_, multilinestringbbox_, multipoint3d_, multipoint_, multipointbbox_, multipolygon3d_, multipolygon_, multipolygonbbox_, point3d_, point_, pointbbox_, polygon3d_, polygon_, polygona_, polygonbbox_)
+import Test.Fixtures (featureCollectionEmpty_, featureCollection_, featureEmpty_, featureNull_, featureNumberId_, feature_, geometryCollection3d_, geometryCollection_, geometryCollectionbbox_, linestring3d_, linestring_, linestringbbox_, mapboxFeature, multilinestring3d_, multilinestring_, multilinestringbbox_, multipoint3d_, multipoint_, multipointbbox_, multipolygon3d_, multipolygon_, multipolygonbbox_, point3d_, point_, pointbbox_, polygon3d_, polygon_, polygona_, polygonbbox_)
 import Type.Prelude (Proxy(..))
 
 
@@ -97,7 +97,7 @@ _feature :: Proxy Feature
 _feature = Proxy
 
 features :: Proxy Feature /\ Array Json
-features = _feature /\ [feature_, featureNull_, featureNumberId_, featureEmpty_]
+features = _feature /\ [feature_, featureNull_, featureNumberId_, featureEmpty_, mapboxFeature]
 
 --------------------------------------------------------------------------------------------------------------------
 _featurecollection :: Proxy FeatureCollection
@@ -118,8 +118,9 @@ main = flip runReaderT 0 do
   decenc "Polygon" polygons
   decenc "MultiPolygon" multipolygons
   decenc "GeometryCollection" geometrycollections
-  decenc "Feature" features
+ -- decenc "Feature" features
   decenc "FeatureCollection" featurecollections
+  dec _feature mapboxFeature
 
 
 enc :: forall a. EncodeJson a => Show a => a -> Test

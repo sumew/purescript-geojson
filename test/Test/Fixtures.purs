@@ -34,6 +34,7 @@ foreign import featureCollectionEmpty_ :: Json
 foreign import geometryCollection_ :: Json
 foreign import geometryCollection3d_ :: Json
 foreign import geometryCollectionbbox_ :: Json
+foreign import mapboxFeature :: Json
 
 
 foreign import geocoll :: Json

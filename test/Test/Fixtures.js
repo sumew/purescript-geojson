@@ -505,3 +505,6 @@ export const geometryCollectionbbox_ =
   ]
 }
 
+export const mapboxFeature =
+  { "geometry": { "type": "Polygon", "coordinates": [[[44.12109375, 8.971897294083007], [45, 8.678778692363068], [47.010498046875, 8.004836862364073], [47.98828125, 8.004836862364073], [46.988525390625, 7.057282352971583], [46.56005859375, 6.620957270326329], [45.955810546875, 5.998533174329339], [45, 4.959615024698024], [44.9560546875, 4.904886794837083], [44.12109375, 4.959615024698024], [44.12109375, 8.971897294083007]]] }, "type": "Feature", "properties": { "fid": 10, "region": "Somali", "tippecanoe_feature_density": 0 }, "id": 10, "layer": { "id": "country-fill", "type": "fill", "source": "openmaptiles", "source-layer": "country", "paint": { "fill-color": { "r": 0.3843137254901961, "g": 0.4823529411764706, "b": 0.7568627450980392, "a": 1 }, "fill-opacity": 0 }, "layout": {} }, "source": "openmaptiles", "sourceLayer": "country", "state": {} }
+
