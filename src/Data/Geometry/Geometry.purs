@@ -3,16 +3,21 @@ module Data.Geometry where
 import Prelude
 
 import Data.Argonaut (class DecodeJson, class EncodeJson, Json, JsonDecodeError(..), decodeJson, encodeJson, isNull, jsonEmptyObject, jsonNull, (.:), (.:?), (:=), (:=?), (~>), (~>?))
+import Data.Array (last)
 import Data.Basic.BoundingBox (BoundingBox)
+import Data.Basic.Coordinates (Coordinates)
+import Data.Basic.LineStringCoordinates (LineStringCoordinates(..))
+import Data.Basic.LinearRingCoordinates (LinearRingCoordinates(..))
+import Data.Basic.PolygonCoordinates (PolygonCoordinates(..))
 import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
-import Data.LineString (LineString)
-import Data.Maybe (Maybe)
-import Data.MultiLineString (MultiLineString)
-import Data.MultiPoint (MultiPoint)
-import Data.MultiPolygon (MultiPolygon)
-import Data.Point (Point)
-import Data.Polygon (Polygon)
+import Data.LineString (LineString(..))
+import Data.Maybe (Maybe(..))
+import Data.MultiLineString (MultiLineString(..))
+import Data.MultiPoint (MultiPoint(..))
+import Data.MultiPolygon (MultiPolygon(..))
+import Data.Point (Point(..))
+import Data.Polygon (Polygon(..))
 
 newtype GeometryCollection = GeometryCollection { bbox :: Maybe BoundingBox, geometries :: Array Geometry }
 derive newtype instance showGeometryCollection :: Show GeometryCollection
@@ -65,6 +70,16 @@ geometryFrom "MultiPolygon" multipolygonJson = MultiPolygon' <$> decodeJson mult
 geometryFrom "GeometryCollection" geometryCollectionJson = GeometryCollection' <$> decodeJson geometryCollectionJson
 geometryFrom "null" _ = pure NoGeometry
 geometryFrom _ json = Left (UnexpectedValue json)
+
+
+coordinates :: Geometry -> Maybe Coordinates
+coordinates (Point' (Point { coordinates: c })) = Just c
+coordinates (MultiPoint' (MultiPoint { coordinates: c })) = last c
+coordinates (LineString' (LineString { coordinates: LineStringCoordinates { first }})) = Just first 
+coordinates (MultiLineString' (MultiLineString { coordinates: [LineStringCoordinates {first },_] })) = Just first 
+coordinates (Polygon' (Polygon { coordinates: PolygonCoordinates ([LinearRingCoordinates { first }, _ ]) })) = Just first 
+coordinates (MultiPolygon' (MultiPolygon { coordinates: [PolygonCoordinates ([LinearRingCoordinates { first}])]  })) = Just first 
+coordinates _ = Nothing 
 
 instance encodeGeometry :: EncodeJson Geometry where
   encodeJson NoGeometry = jsonNull
