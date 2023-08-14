@@ -16,6 +16,7 @@ data FeatureId
   | FeatureIdNumber Number 
 
 derive instance genericFeatureId :: Generic FeatureId _
+derive instance eqFeatureId :: Eq FeatureId
 
 instance showFeatureId :: Show FeatureId where
   show (FeatureIdString str) = show str 
@@ -35,6 +36,8 @@ instance featureIdEncodeJson :: EncodeJson FeatureId where
 
 
 newtype FeatureProperties = FeatureProperties Json
+
+derive newtype instance eqFeatureProperties :: Eq FeatureProperties
 
 instance showFeatureProperties :: Show FeatureProperties where
   show (FeatureProperties json) = stringify json
@@ -56,6 +59,7 @@ newtype Feature  = Feature
 
 derive newtype instance showFeature :: Show Feature
 
+derive newtype instance eqFeature :: Eq Feature
 
 instance decodeJsonFeature :: DecodeJson Feature where
   decodeJson json = do

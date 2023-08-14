@@ -10,6 +10,7 @@ import Data.Maybe (Maybe)
 newtype MultiLineString = MultiLineString { bbox :: Maybe BoundingBox, coordinates :: Array LineStringCoordinates }
 
 derive newtype instance showMultiLineString :: Show MultiLineString
+derive newtype instance eqMultiLineString :: Eq MultiLineString
 
 instance decodeJsonMultiLineString :: DecodeJson MultiLineString where
   decodeJson json = do

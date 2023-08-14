@@ -18,6 +18,7 @@ newtype LinearRingCoordinates = LinearRingCoordinates
   }
 
 derive newtype instance showLinearRingCoordinates :: Show LinearRingCoordinates
+derive newtype instance eqLinearRingCoordinates :: Eq LinearRingCoordinates
 
 instance decodeLinearRingCoordinates :: DecodeJson LinearRingCoordinates where
   decodeJson json = do

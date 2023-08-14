@@ -21,6 +21,7 @@ import Data.Polygon (Polygon(..))
 
 newtype GeometryCollection = GeometryCollection { bbox :: Maybe BoundingBox, geometries :: Array Geometry }
 derive newtype instance showGeometryCollection :: Show GeometryCollection
+derive newtype instance eqGeometryCollection :: Eq GeometryCollection
 
 
 instance decodeGeometryCollection :: DecodeJson GeometryCollection where
@@ -48,7 +49,9 @@ data Geometry
   | MultiPolygon' MultiPolygon
   | GeometryCollection' GeometryCollection
 
+derive instance eqGeometry :: Eq Geometry
 derive instance genericGeometry :: Generic Geometry _
+
 instance showGeometry :: Show Geometry where
   show (Point' p) = show p
   show (MultiPoint' mp) = show mp

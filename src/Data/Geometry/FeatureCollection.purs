@@ -12,6 +12,7 @@ import Data.Maybe (Maybe(..))
 newtype FeatureCollection = FeatureCollection { bbox :: Maybe BoundingBox, features :: Array Feature }
 
 derive newtype instance showFeatureCollection :: Show FeatureCollection
+derive newtype instance eqFeatureCollection :: Eq FeatureCollection 
 
 instance semigroupFeatureCollection :: Semigroup FeatureCollection where
   append :: FeatureCollection -> FeatureCollection -> FeatureCollection
@@ -20,6 +21,7 @@ instance semigroupFeatureCollection :: Semigroup FeatureCollection where
 
 instance monoid :: Monoid FeatureCollection where
   mempty = FeatureCollection { bbox: Nothing, features: []}
+
 
 
 instance featureCollectionDecodeJson :: DecodeJson FeatureCollection where

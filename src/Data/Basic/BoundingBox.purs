@@ -15,6 +15,7 @@ newtype BoundingBox = BoundingBox
   }
 
 derive newtype instance showBoundingBox :: Show BoundingBox
+derive newtype instance eqBoundingBox :: Eq BoundingBox
 
 --NOTE, discarding elevation
 instance appendBoundingBox :: Semigroup BoundingBox where
