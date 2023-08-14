@@ -11,6 +11,7 @@ import Data.Maybe (Maybe)
 newtype MultiPoint = MultiPoint { bbox :: Maybe BoundingBox, coordinates :: Array Coordinates }
 
 derive newtype instance showMultiPoint :: Show MultiPoint
+derive newtype instance eqMultiPoint :: Eq MultiPoint
 
 
 instance decodeJsonMultiPoint :: DecodeJson MultiPoint where

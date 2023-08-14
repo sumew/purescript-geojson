@@ -1,7 +1,7 @@
 {
   "name": "geojson",
-  "version": "v0.0.1",
-  "description": "An Purescript implementaiton of the GeoJson standard",
+  "version": "v0.0.3",
+  "description": "A Purescript implementaiton of the GeoJson standard",
   "scripts": {
     "build": "spago build",
     "test": "spago test --no-install"

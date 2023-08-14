@@ -13,6 +13,7 @@ newtype Coordinates = Coordinates
   }
 
 derive newtype instance showPointCoordinates :: Show Coordinates
+derive newtype instance eqCoordinates :: Eq Coordinates
 
 instance encodeJson :: EncodeJson Coordinates where
   encodeJson = toNumberArray >>> encodeJson

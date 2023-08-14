@@ -15,6 +15,7 @@ newtype LineStringCoordinates = LineStringCoordinates
   }
 
 derive newtype instance showLineStringCoordinates :: Show LineStringCoordinates
+derive newtype instance eqLineString :: Eq LineStringCoordinates
 
 instance encodeJsonLineStringCoordinates :: EncodeJson LineStringCoordinates where
   encodeJson = toArray >>> encodeJson

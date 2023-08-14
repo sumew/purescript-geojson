@@ -13,6 +13,7 @@ newtype Point = Point
   }
 
 derive newtype instance showPoint :: Show Point
+derive newtype instance eqPoint :: Eq Point
 
 instance decodeJsonPoint :: DecodeJson Point where
   decodeJson json = do
