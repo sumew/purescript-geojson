@@ -5,8 +5,11 @@ import Prelude
 import Control.Apply (lift2)
 import Data.Argonaut (class DecodeJson, class EncodeJson, decodeJson, encodeJson, jsonEmptyObject, (.:), (.:?), (:=), (:=?), (~>), (~>?))
 import Data.Basic.BoundingBox (BoundingBox)
-import Data.Geometry.Feature (Feature)
+import Data.Basic.Coordinates (Coordinates(..))
+import Data.Geometry (Geometry(..))
+import Data.Geometry.Feature (Feature(..))
 import Data.Maybe (Maybe(..))
+import Data.Point (Point(..))
 
 
 newtype FeatureCollection = FeatureCollection { bbox :: Maybe BoundingBox, features :: Array Feature }
@@ -38,3 +41,22 @@ instance featureCollectionEncodeJson :: EncodeJson FeatureCollection where
     ~> "features" := encodeJson features
     ~> "bbox" :=? (encodeJson <$> bbox)
     ~>? jsonEmptyObject
+
+
+emptyFeatureCollection :: FeatureCollection
+emptyFeatureCollection =
+  FeatureCollection
+    { bbox: Nothing
+    , features:
+        [ Feature
+            { geometry:
+                Point' $ Point
+                  { bbox: Nothing
+                  , coordinates: Coordinates { lon: 0.0, lat: 0.0, mbElev: Nothing }
+                  }
+            , properties: Nothing
+            , id: Nothing
+            , bbox: Nothing
+            }
+        ]
+    }
