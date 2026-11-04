@@ -4,7 +4,7 @@
   "description": "A Purescript implementaiton of the GeoJson standard",
   "scripts": {
     "build": "spago build",
-    "test": "spago test --no-install"
+    "test": "spago test"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,5 @@
   "bugs": {
     "url": "https://github.com/sumew/purescript-geojson/issues"
   },
-  "homepage": "https://github.com/sumew/purescript-geojson#readme",
+  "homepage": "https://github.com/sumew/purescript-geojson#readme"
 }
